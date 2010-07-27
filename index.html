@@ -1,0 +1,68 @@
+<!DOCTYPE=html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title> Facet Graph </title>
+	<link rel="stylesheet" href="css/main.css" type="text/css">
+	
+	<script type="text/javascript" src="lib/jquery.js"></script>
+	<script type="text/javascript" src="lib/jquery.form.js"></script>
+	<script type="text/javascript" src="lib/jquery.autocomplete.js"></script>
+
+	<script type="text/javascript" src="lib/raphael.js"></script>
+	<script type="text/javascript" src="facetgraph/view/facetgraph.js"></script>
+	<script type="text/javascript" src="facetgraph/controls/topbar.js"></script>
+
+	<!--[if IE]><script src="lib/excanvas.js"></script>
+	<![endif]-->
+	
+	<script type="text/javascript">
+			var navURL = "http://localhost/~aditi/cgi-bin/facetgraph/navigation.py";
+			var newGraphURL = "http://localhost/~aditi/cgi-bin/facetgraph/newgraph.py";
+			var autoCompleteURL = "http://localhost/~aditi/cgi-bin/facetgraph/autocomplete.py";
+			var autocomplete = {} // function
+		$(document).ready(function(){
+			/*
+				Load the new graph space
+			*/
+			paper = Raphael($("#canvas")[0], /*w*/800, /*h*/9000);
+			
+			/*
+				Load the new graph and navigation urls from setup.json
+			*/
+			
+			/*
+				Load top bar, and display the data from the top bar
+			*/
+			$.get(navURL, function(data){
+					displayTopBar(data);
+				});
+				
+			$.get(newGraphURL, function(data){
+					drawGraph(data);
+				});
+
+
+		});
+	</script>
+</head>
+
+<body id="index" class="home">
+
+<p id="debug">
+</p>
+<nav>
+	<form id="topbar" class="navigation">
+	</form>
+</nav>
+
+<div id="canvas" class="graph">
+</div>
+
+	
+
+
+
+</body>
+
+</html>

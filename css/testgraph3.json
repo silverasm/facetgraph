@@ -1,0 +1,41 @@
+{
+"nodes": 
+	[
+		{
+		"id": 0,
+		"level":0,
+		"position": {"x":0,"y":0},
+		"components":
+			[
+				{
+				"type":"text",
+				"name":"The Center - 2",
+				"url":"testgraphcenter.json"
+				}
+			]
+		},
+		
+		{
+		"id":1,
+		"level":1,
+		"position":{"x":100,"y":100},
+		"components":
+			[
+				{
+				"type":"text",
+				"name": "level 1 - clicked",
+				"url":"testgraph2.json"
+				},
+				{
+				"type":"popup",
+				"name": "level 1",
+				"url":"testURL.html"
+				}
+			]
+		}
+	],
+"edges":
+	[
+		{"from":0, "to":1}
+	]
+}

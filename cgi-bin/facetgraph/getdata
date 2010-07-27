@@ -1,0 +1,80 @@
+def getTwoLevelData(queryType, resultType, query, N1, N2):
+	"""
+	"""
+	RIClass = None
+	if queryType == "camera":
+		L1Class = cfRevertedIndex
+		L1Name = getCameraName
+		getL1ID = getCameraID
+	elif queryType == "feature" :
+		L1Class = fcRevertedIndex
+		L1Name = getFeatureName
+		getL1ID = getFeatureID
+	else:
+		return {}
+		
+	queryID = getL1ID(query)
+	# get the top N1 Level 1 rankings for the query.
+	L1Instances = session.query(L1Class).order_by(L1Class.rank).filter(L1Class.query == queryID)[:N1]
+	data = {L1Instances[0].query:[]}
+	for instance in L1Instances:
+		data[instance.query].append({(instance.result, instance.rank):[]})
+	
+	if resultType == "camera":
+		L2Class = cfRevertedIndex
+		L2Name = getCameraName
+		getL2ID = getCameraID
+	elif resultType == "feature" :
+		L2Class = fcRevertedIndex
+		L2Name = getFeatureName
+		getL2ID = getFeatureIndex
+	else:
+		return {}
+	
+	for l1 in data.keys:
+		for l2 in data[l1].keys:
+			l2ID = l2[0]
+			L2Instances = session.query(L2Class).order_by(L2Class.rank).filter(L2Class.query == l2ID)[:N2]
+			for instance in L2Instances:
+				data[l1][l2].append((instance.result, instance.rank))
+	
+	nodes= []
+	edges = []
+	
+	nodeIDs = {}
+	
+	id = -1;
+	for l1 in data.keys():
+		id += 1
+		L1id = str(id)
+		name = L1Name(l1)
+		niceName = name.title()
+		# different kinds of urls?
+		newGraphUrl = "%s/%s?querytype=%s&resulttype=%s&query=%s&n1=%s&n2=%s"%(newgraph, queryType, resultType, query, N1, N2)
+		nodes.append({"id": L1id, "level": 0, "name":name, "components": [{"type":"text", "name":niceName, "url":newgraphURL}]})
+		for l2, rank in data[l1].keys():
+			name = L2Name(l2)
+			if name in nodeIDs:
+				nodeID = nodeIDs[name]
+			else:
+				nodeID = str(id)
+				nodeIDs[name]=nodeID
+				id +=1
+				niceName = name.title()
+				newGraphUrl = "%s/%s?querytype=%s&resulttype=%s&query=%s&n1=%s&n2=%s"%(newgraph,resultType, queryType, name, N1, N2)
+				nodes.append({"id": nodeID, "level": 1, "rank":rank, "name":name, "components": [{"type":"text", "name":niceName, "url":newgraphURL}]})
+			edges.append({"from":L1id, "to": nodeID})
+			for deepL1, rank in data[l1][(l2, rank)].keys():
+				name = L1Name(deepL1)
+				if name in nodeIDs:
+					l3ID = nodeIDs[name]
+				else:
+					l3ID = str(id)
+					nodeIDs[name]=l3ID
+					id +=1
+					niceName = name.title()
+					newGraphUrl = "%s/%s?querytype=%s&resulttype=%s&query=%s&n1=%s&n2=%s"%(newgraph,queryType, resultType, name, N1, N2)
+					nodes.append({"id": nodeID, "level": 2, "rank":rank, "name":name, "components": [{"type":"text", "name":niceName, "url":newgraphURL}]})
+				edges.append({"from":nodeID, "to": l3ID})
+	return {"nodes":nodes, "edges":edges, "nodeIDs":nodeIDs}
+				

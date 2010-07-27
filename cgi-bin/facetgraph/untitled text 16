@@ -1,0 +1,33 @@
+from dbsetup import *
+def createWordWordRevertedIndex():
+	words = {}
+	counts = {}
+	for i, fileName in enumerate(os.listdir(keys.EXTRACTED_DIR)):
+		if fileName.endswith("json"):
+			print fileName
+			f = open(keys.EXTRACTED_DIR+os.sep+fileName)
+			json = decoder.decode(f.read())
+			f.close()
+			for review in json["reviews"]:
+				for sentence in review["sentences"]:
+					taggedWords = sentence["taggedSentence"].split()
+					for tagged in taggedWords:
+						word, tag = tagged.split("/")
+						if word not in words:
+							words[word] = tag
+							session.add(Word(word, tag))
+						if word not in counts:
+							counts[word] = util.Counter()
+			for review in json["reviews"]:
+				for sentence in review["sentences"]:
+					taggedWords = sentence["taggedSentence"].split()
+					for tagged in taggedWords:
+						word, tag = tagged.split("/")
+						for word2 in counts:
+							counts[word2][word] += 1
+	
+	tf_idfs = {}
+	ranks = {}
+	totalWords = float(len(counts))
+	for word1 in counts:
+		df = len(counts[word1])
